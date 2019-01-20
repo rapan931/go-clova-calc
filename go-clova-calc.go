@@ -77,7 +77,7 @@ type ClovaRequest struct {
 	} `json:"request"`
 }
 
-type MyResponse struct {
+type ClovaResponse struct {
 	StatusCode int `json:"statusCode"`
 	Headers    struct {
 		ContentType string `json:"Content-Type"`
@@ -102,7 +102,17 @@ type MyResponse struct {
 	} `json:"body"`
 }
 
-func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func NewClovaResponse() *ClovaResponse {
+	response := ClovaResponse{}
+	response.Body.Version = "1.0"
+	response.Body.Response.ShouldEndSession = false
+	response.Body.Response.OutputSpeech.Type = "SimpleSpeech"
+	response.Body.Response.OutputSpeech.Values.Type = "PlainText"
+	response.Body.Response.OutputSpeech.Values.Lang = "ja"
+	return &response
+}
+
+func Calc(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	reqJsonBytes := ([]byte)(request.Body)
 	clovaRequest := new(ClovaRequest)
 
@@ -111,13 +121,7 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		log.Println("[ERROR0]", err)
 	}
 
-	response := MyResponse{}
-	response.Body.Version = "1.0"
-	response.Body.Response.ShouldEndSession = false
-	response.Body.Response.OutputSpeech.Type = "SimpleSpeech"
-	response.Body.Response.OutputSpeech.Values.Type = "PlainText"
-	response.Body.Response.OutputSpeech.Values.Lang = "ja"
-
+	response := NewClovaResponse()
 	var text string
 	var result int
 	switch clovaRequest.Request.Type {
@@ -171,5 +175,5 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 
 func main() {
 	log.SetFlags(log.Lshortfile)
-	lambda.Start(hello)
+	lambda.Start(Calc)
 }
