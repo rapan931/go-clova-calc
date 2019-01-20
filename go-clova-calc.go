@@ -1,3 +1,4 @@
+// clova extension for aws lambda
 // build on windows
 // > set GOOS=linux
 // > set GOARCH=amd64
@@ -107,7 +108,7 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 
 	var err error
 	if err = json.Unmarshal(reqJsonBytes, clovaRequest); err != nil {
-		log.Fatalln("[ERROR 0]", err)
+		log.Println("[ERROR0]", err)
 	}
 
 	response := MyResponse{}
@@ -123,19 +124,16 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 	case "LaunchRequest":
 		text = "たし算と引き算ができます。1たす1は？または、3ひく1は？のように話してみてください"
 
-	case "SessionEndedReauest":
-		text = "さいならー"
-
 	case "IntentRequest":
 		var x, y int
 		if x, err = strconv.Atoi(clovaRequest.Request.Intent.Slots.X.Value); err != nil {
-			log.Fatalln("[ERROR 1]", err)
+			log.Println("[ERROR1]", err)
 			text = "すみません。理解できませんでした。"
 			break
 		}
 
 		if y, err = strconv.Atoi(clovaRequest.Request.Intent.Slots.Y.Value); err != nil {
-			log.Fatalln("[ERROR 2]", err)
+			log.Println("[ERROR2]", err)
 			text = "すみません。理解できませんでした。"
 			break
 		}
@@ -149,12 +147,16 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 		case "わる", "割る", "割って", "わって":
 			result = x / y
 		default:
-			log.Fatalln("[ERROR 3]", clovaRequest.Request.Intent.Slots.Operator.Value)
+			log.Println("[ERROR3] Intent request operator value parse error.")
+			text = "すみません。理解できませんでした。"
+			break
 		}
 
 		text = fmt.Sprintf("%d%s%dは、、、、%dです！！", x, clovaRequest.Request.Intent.Slots.Operator.Value, y, result)
 	default:
-		text = "分かりませんでした。。"
+		log.Println("[ERROR3]", "Intent request parse error.")
+		text = "すみません。理解できませんでした。"
+		break
 	}
 
 	response.Body.Response.OutputSpeech.Values.Value = text
@@ -168,5 +170,6 @@ func hello(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespons
 }
 
 func main() {
+	log.SetFlags(log.Lshortfile)
 	lambda.Start(hello)
 }
