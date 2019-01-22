@@ -63,7 +63,7 @@ type ClovaRequest struct {
 				X struct {
 					Name  string `json:"name"`
 					Value string `json:"value"`
-				} `json:"x`
+				} `json:"x"`
 				Y struct {
 					Name  string `json:"name"`
 					Value string `json:"value"`
@@ -118,7 +118,7 @@ func Calc(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 
 	var err error
 	if err = json.Unmarshal(reqJsonBytes, clovaRequest); err != nil {
-		log.Println("[ERROR0]", err)
+		log.Println("[ERROR]", err)
 	}
 
 	response := NewClovaResponse()
@@ -131,13 +131,13 @@ func Calc(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 	case "IntentRequest":
 		var x, y int
 		if x, err = strconv.Atoi(clovaRequest.Request.Intent.Slots.X.Value); err != nil {
-			log.Println("[ERROR1]", err)
+			log.Println("[ERROR]", err)
 			text = "すみません。理解できませんでした。"
 			break
 		}
 
 		if y, err = strconv.Atoi(clovaRequest.Request.Intent.Slots.Y.Value); err != nil {
-			log.Println("[ERROR2]", err)
+			log.Println("[ERROR]", err)
 			text = "すみません。理解できませんでした。"
 			break
 		}
@@ -151,14 +151,14 @@ func Calc(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 		case "わる", "割る", "割って", "わって":
 			result = x / y
 		default:
-			log.Println("[ERROR3] Intent request operator value parse error.")
+			log.Println("[ERROR] Intent request operator value parse error.")
 			text = "すみません。理解できませんでした。"
 			break
 		}
 
 		text = fmt.Sprintf("%d%s%dは、、、、%dです！！", x, clovaRequest.Request.Intent.Slots.Operator.Value, y, result)
 	default:
-		log.Println("[ERROR3]", "Intent request parse error.")
+		log.Println("[ERROR]", "Intent request parse error.")
 		text = "すみません。理解できませんでした。"
 		break
 	}
